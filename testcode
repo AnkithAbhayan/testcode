@@ -1,0 +1,57 @@
+#! /usr/bin/bash
+
+MPATH="/home/ankith/Documents/test"
+
+if [ -d "$MPATH" ]
+then
+	echo "Path found! ($MPATH)"
+	FILES=$(ls $MPATH)
+	for FILE in $FILES
+		do
+			if ! [ -s "$MPATH/$FILE" ]
+			then 
+				rm "$MPATH/$FILE"
+			fi
+	done
+else
+	echo "Path not found! ($MPATH)"
+	mkdir -p "$MPATH"
+	echo "Path created!"
+fi
+
+if [ "$1" != "" ]
+then 
+	FNAME="$1"
+	MNUM=1
+	NAME=$(echo "$FNAME" | cut -d "." -f 1)
+	FEXT=$(echo "$FNAME" | rev | cut -d "." -f 1 | rev)
+	while [ -f "$MPATH/$FNAME" ]
+	do
+		FNAME="$NAME$MNUM.$FEXT"
+		((MNUM++))
+	done
+else
+	if [ "$(ls $MPATH)" = "" ]
+	then 
+		FNAME="test.py"
+	else
+		FILES=$(ls $MPATH/*.py)
+		MNUM=0
+		for FILE in $FILES
+			do
+				FNAME=$(echo "$FILE" | rev | cut -d "/" -f 1 | rev)
+				FNUM=${FNAME:4:-3}
+				if [ "$FNUM" != "" ] && [ "$FNUM" -gt "$MNUM" ];
+				then 
+					MNUM=$FNUM
+				fi
+		done
+		((MNUM++))
+		FNAME="test$MNUM.py"
+	fi
+fi
+
+NPATH="$MPATH/$FNAME"
+echo "Creating $FNAME"
+touch "$NPATH"
+subl "$NPATH"
